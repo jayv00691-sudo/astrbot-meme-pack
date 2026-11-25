@@ -1,72 +1,125 @@
 ---
 name: astrbot-meme-pack
-description: "制作、校验并发布 AstrBot 表情包管理器（meme_manager）的自定义表情包仓库。当需要新增表情图片、调整分类、更新 manifest.json 版本、或把表情包发布到 GitHub 供插件安装时使用。"
+description: "制作、校验并发布 AstrBot 表情包管理器（meme_manager）的自定义表情包仓库。当需要新增表情图片、确定该放哪个情绪分类、检查图片规格、更新 manifest.json 版本、或把表情包发布到 GitHub 供插件安装时使用。"
 ---
 
-# AstrBot 表情包仓库制作
+# 做一套 AstrBot 表情包
 
-## 适用场景
+## 这套东西是怎么工作的
 
-- 给 AstrBot 的 `meme_manager` 插件做自定义表情包
-- 往已有表情包仓库补图、改分类、发新版本
-- 排查「按来源安装」失败的原因
-
-## 仓库结构
+机器人聊天时，先按对话情绪选一个**分类**，再从该分类里挑一张图发出去。
+所以决定效果的两个变量是：**分类分得对不对**，和**每个分类里有没有够用的图**。
 
 ```
-.
-├── manifest.json
-├── memes/<category>/*.png|jpg|gif|webp
-└── previews/cover.jpg
+你的仓库/
+├── manifest.json          包信息 + 分类说明
+├── memes/
+│   ├── happy/             每个分类一个目录
+│   ├── meow/
+│   └── ...                目录名必须是下面 19 个之一
+└── previews/
+    └── cover.jpg          资源广场封面
 ```
 
-分类名固定为：`angry baka color confused cpu fool givemoney happy like meow morning reply sad see shy sigh sleep surprised work`。
+## 一、19 个情绪分类（名字固定，不能自创）
 
-## manifest.json 必填字段
+| 分类 | 什么时候用 | 建议张数 |
+| --- | --- | --- |
+| `angry` | 抱怨、不满、强烈反对 | 20–30 |
+| `baka` | 轻微吐槽、嗔怪，语气友善 | 5–10 |
+| `color` | 暧昧、亲密，注意别滥用 | 10–20 |
+| `confused` | 没听懂、需要对方解释 | 20–30 |
+| `cpu` | 思考卡住、需要一点时间 | 10–20 |
+| `fool` | 自嘲、缓和气氛 | 5–10 |
+| `givemoney` | 报酬、请客、红包 | 3–8 |
+| `happy` | 开心、成功、被夸奖 | 20–30 |
+| `like` | 喜欢、赞同、推荐 | 10–20 |
+| `meow` | 卖萌、撒娇、求关注 | 5–10 |
+| `morning` | 早安问候 | 5–10 |
+| `reply` | 等对方回应、需要确认 | 3–8 |
+| `sad` | 失落、委屈、需要安慰 | 20–30 |
+| `see` | 正在看、持续关注 | 10–20 |
+| `shy` | 害羞、被夸得不自在 | 15–25 |
+| `sigh` | 叹气、无奈（轻） | 10–15 |
+| `sleep` | 困了、休息、晚安 | 5–10 |
+| `surprised` | 惊讶、意外 | 15–25 |
+| `work` | 做事、汇报进度 | 3–8 |
+
+参考：官方示例包 399 张，分布很不均匀，`angry` 76 张、`work` 和 `reply` 各 1 张。
+**数量不够的分类宁可不建，也不要硬凑**，否则机器人会频繁发同一张。
+
+## 二、图片规格
+
+| 项 | 要求 | 依据 |
+| --- | --- | --- |
+| 格式 | `.png` `.jpg` `.jpeg` `.gif` `.webp`，就这五种 | 插件代码固定 |
+| 单张体积 | 建议 ≤ 1 MB | 官方包中位 68 KB，最大 2 MB |
+| 尺寸 | 建议边长 500–1000 px | 插件不自动缩放，尺寸乱会显得大小不一 |
+| 透明背景 | 只能用 png / webp | jpg 不支持透明 |
+| 动图 | gif / webp 可用 | — |
+| 文件名 | 英文、数字、`-` `_`，不要空格和中文 | 避免 URL 与路径问题 |
+
+同一目录内文件名不能重复。
+
+## 三、制作流程
+
+1. 定主题，确认这套图统一风格（画风、色调、尺寸一致）。
+2. 按上面的表，先做 4–6 个高频分类，`happy` `sad` `confused` `surprised` 优先级最高。
+3. 图片裁成相同比例，统一导出一遍，避免体积差异过大。
+4. 放进 `memes/<分类>/`。
+5. 每个实际有图的分类，在 `manifest.json` 的 `categories` 里写 `description`。
+6. `previews/cover.jpg` 放一张封面（建议 16:9，≤ 500 KB）。
+7. 递增 `manifest.json` 的 `version`。
+8. 提交推送。
+
+## 四、manifest.json 字段
 
 | 字段 | 说明 |
 | --- | --- |
 | `schema_version` | 固定 `1` |
 | `id` | 唯一包 ID，仅小写字母、数字、`.` `_` `-` |
 | `name` | 展示名称 |
-| `version` | 语义化版本，**每次改动都要递增** |
-| `description` | 一句话说明 |
-| `maintainer` | GitHub 用户名 |
-| `license` | 许可证，例如 `CC-BY-NC-SA-4.0` |
-| `tags` | 字符串数组 |
-| `source` | `{type: "github", repo, ref, subpath}` |
-| `categories` | 只写实际有图的分类，每个给 `description` |
+| `version` | 语义化版本，**每次改动必须递增**，否则插件认为没有更新 |
+| `description` | 一句话说明这套包的主题和风格 |
+| `maintainer` | 你的 GitHub 用户名 |
+| `license` | 例如 `CC-BY-NC-SA-4.0` |
+| `tags` | 字符串数组，便于检索 |
+| `source` | `{type: "github", repo: "owner/repo", ref: "main", subpath: "."}` |
+| `categories` | 每个分类的 `description`，会作为 AI 判断何时使用该分类的依据 |
 
-## 操作步骤
+`categories.description` 写具体一点，例如：
 
-1. 确认要新增的分类，在 `memes/` 下建同名目录。
-2. 放入图片。建议单张不超过 1 MB，格式优先 png / jpg / gif / webp。
-3. 若新增了分类，同步在 `manifest.json` 的 `categories` 里补 `description`。
-4. 递增 `version`。
-5. 提交并推送。
-6. 在 AstrBot 面板的「可更新」里更新已安装的包。
+```json
+"sad": { "description": "用户倾诉难过、机器人自己失落、或需要安静陪伴时使用，不要配轻快语气" }
+```
 
-## 安装（给使用者）
+## 五、自检清单
 
-面板 → 插件 → 表情包管理器 → 资源广场 → 「按来源安装」：
+- [ ] `manifest.json` 能被 JSON 解析（末尾无多余逗号）
+- [ ] `id` 只含小写字母、数字、`.` `_` `-`
+- [ ] `memes/` 下所有目录名都在 19 个分类里
+- [ ] 有图的分类，`categories` 里都有对应 `description`
+- [ ] 所有图片格式在允许列表内
+- [ ] `version` 已递增
+- [ ] `source.repo` 与实际仓库一致
+- [ ] 仓库是公开的
 
-- 仓库：`owner/repo`，**不要贴完整 URL**
-- 分支/标签：`main`
-- 目录：根目录填 `.`
+## 六、安装到机器人
 
-## 常见失败原因
+AstrBot 面板 → 插件 → 表情包管理器 → 资源广场 → 「按来源安装」：
+
+| 字段 | 填法 |
+| --- | --- |
+| 仓库 | `owner/repo`，**不要贴完整 URL** |
+| 分支 / 标签 / 提交 | 必填，例如 `main` |
+| 目录 | 根目录填 `.`，包在子目录就填子目录 |
+
+## 七、常见失败
 
 | 现象 | 原因 |
 | --- | --- |
-| 安装报错说格式不对 | 仓库字段填了 URL，应填 `owner/repo` |
-| 装上了但没有表情 | `memes/` 下的分类目录名不在固定列表里 |
-| 更新后没变化 | `version` 没递增 |
-| 拉取失败 | 仓库私有，或默认分支不是填的那个 |
-
-## 校验清单
-
-- [ ] `manifest.json` 能被 JSON 解析
-- [ ] `id` 只含小写字母、数字、`.` `_` `-`
-- [ ] 每个有图的目录名都在固定分类列表里
-- [ ] `version` 已递增
-- [ ] `source.repo` 与实际仓库一致
+| 安装报格式错误 | 仓库字段填了 URL，应填 `owner/repo` |
+| 装上但没图 | 分类目录名不在 19 个固定名里 |
+| 更新后无变化 | `version` 没递增 |
+| 拉取失败 | 仓库私有，或分支名写错 |
+| 总发同一张 | 该分类下张数太少 |
