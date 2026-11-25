@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "taotao-meme-pack",
+  "name": "桃桃表情包",
+  "version": "0.1.0",
+  "description": "日常聊天用的猫咪表情包，适合陪伴型角色。",
+  "maintainer": "jayv00691-sudo",
+  "license": "CC-BY-NC-SA-4.0",
+  "tags": ["cat", "companion", "meme-pack"],
+  "source": {
+    "type": "github",
+    "repo": "jayv00691-sudo/astrbot-meme-pack",
+    "ref": "main",
+    "subpath": "."
+  },
+  "categories": {
+    "angry": { "description": "抱怨、不满或强烈反对时使用。" },
+    "baka": { "description": "轻微吐槽或责备，语气友善。" },
+    "color": { "description": "暧昧或亲密场景，注意使用频率。" },
+    "confused": { "description": "没听懂、需要对方解释时使用。" },
+    "cpu": { "description": "思考卡住、需要一点时间时使用。" },
+    "fool": { "description": "自嘲或缓和气氛的小玩笑。" },
+    "givemoney": { "description": "涉及报酬、请客、红包时使用。" },
+    "happy": { "description": "开心、成功、被夸奖时使用。" },
+    "like": { "description": "表达喜欢、赞同或推荐。" },
+    "meow": { "description": "卖萌、撒娇、求关注时使用。" },
+    "morning": { "description": "早安问候。" },
+    "reply": { "description": "等对方回应、需要确认时使用。" },
+    "sad": { "description": "失落、委屈、需要安慰时使用。" },
+    "see": { "description": "正在看、持续关注某事。" },
+    "shy": { "description": "害羞、被夸得不自在时使用。" },
+    "sigh": { "description": "叹气、无奈，语气较轻。" },
+    "sleep": { "description": "困了、要休息、晚安。" },
+    "surprised": { "description": "惊讶、意外时使用。" },
+    "work": { "description": "做事、汇报进度、任务推进。" }
+  }
+}
